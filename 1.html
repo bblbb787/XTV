@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XTV服务器 - 我的世界MTR·生存·建筑</title>
+  <!-- 引入外部资源（使用稳定CDN） -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4CAF50',
+            secondary: '#FFC107',
+            accent: '#2196F3',
+            dark: '#1A1A1A',
+            light: '#F9F9F9',
+          },
+          fontFamily: {
+            minecraft: ['"Minecraftia"', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.6s ease-out',
+            'slide-down': 'slideDown 0.6s ease-out',
+            'bounce-in': 'bounceIn 0.8s ease-out',
+            'pulse-glow': 'pulseGlow 2s infinite',
+            'float': 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(-20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            bounceIn: {
+              '0%': { transform: 'scale(0.3)', opacity: '0' },
+              '50%': { transform: 'scale(1.05)', opacity: '0.8' },
+              '70%': { transform: 'scale(0.9)', opacity: '0.9' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            },
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 5px rgba(76, 175, 80, 0.5)' },
+              '50%': { boxShadow: '0 0 20px rgba(76, 175, 80, 0.8), 0 0 30px rgba(76, 175, 80, 0.6)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .pixel-border {
+        box-shadow: 0 -4px 0 4px theme('colors.dark'), 
+                    4px 0 0 4px theme('colors.dark'), 
+                    0 4px 0 4px theme('colors.dark'), 
+                    -4px 0 0 4px theme('colors.dark');
+      }
+      .pixel-btn {
+        position: relative;
+        top: 0;
+        transition: all 0.2s ease;
+      }
+      .pixel-btn:hover { 
+        top: -2px; 
+        transform: scale(1.05);
+      }
+      .pixel-btn:active { 
+        top: 2px; 
+        transform: scale(0.95);
+      }
+      .grass-bg {
+        background-image: url('https://ts1.tc.mm.bing.net/th/id/OIP-C.bwL0ABR1DU9pPW8kDrD-zgHaJ4?rs=1&pid=ImgDetMain&o=7&rm=3');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+      .resource-card { 
+        transition: all 0.3s ease; 
+        transform-style: preserve-3d;
+      }
+      .resource-card:hover {
+        transform: translateY(-5px) rotateX(5deg);
+        box-shadow: 0 15px 30px -5px rgba(76, 175, 80, 0.3), 0 10px 10px -5px rgba(76, 175, 80, 0.1);
+      }
+      
+      /* 滚动条样式 */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: theme('colors.dark');
+      }
+      ::-webkit-scrollbar-thumb {
+        background: theme('colors.primary');
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: theme('colors.primary');
+        opacity: 0.8;
+      }
+      
+      /* 文本选择样式 */
+      ::selection {
+        background-color: theme('colors.primary');
+        color: white;
+      }
+      
+      /* 加载动画 */
+      .loading-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, theme('colors.primary'), theme('colors.accent'), theme('colors.secondary'));
+        z-index: 9999;
+        transition: width 0.4s ease;
+      }
+      
+      /* 打字机效果 */
+      .typewriter {
+        overflow: hidden;
+        border-right: 2px solid theme('colors.primary');
+        white-space: nowrap;
+        animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+      }
+      
+      @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+      }
+      
+      @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: theme('colors.primary') }
+      }
+    }
+  </style>
+  
+  <!-- 字体预加载 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Minecraftia&display=swap" rel="stylesheet">
+  
+  <!-- 离线检测 -->
+  <script>
+    window.addEventListener('error', function(e) {
+      console.error('资源加载错误:', e.target.src || e.target.href);
+      if (e.target.tagName === 'LINK' || e.target.tagName === 'SCRIPT') {
+        alert('部分资源加载失败，可能影响页面显示。请检查网络连接或稍后再试。');
+      }
+    });
+  </script>
+</head>
+
+<body class="font-minecraft bg-dark text-light antialiased">
+  <!-- 加载进度条 -->
+  <div class="loading-bar" id="loading-bar"></div>
+  
+  <!-- 导航栏（添加Logo） -->
+  <header id="navbar" class="fixed w-full z-50 transition-all duration-500 bg-dark/80 backdrop-blur-md transform -translate-y-full">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="#" class="flex items-center space-x-3">
+        <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEDyMlo_LR1qJY9pP5K9UK1FgpAteo6PQACJhwAAjvC6FfYiILOBGcgbTYE.png" alt="XTV服务器Logo" class="h-12 w-auto transition-transform duration-300 hover:scale-110">
+      </a>
+      
+      <!-- 桌面导航 -->
+      <nav class="hidden md:flex items-center space-x-6">
+        <a href="#features" class="hover:text-primary transition-all duration-300 transform hover:scale-105 relative group">
+          <span>服务器特色</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a href="#gameplay" class="hover:text-primary transition-all duration-300 transform hover:scale-105 relative group">
+          <span>游戏玩法</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a href="#gallery" class="hover:text-primary transition-all duration-300 transform hover:scale-105 relative group">
+          <span>作品展示</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a href="#rules" class="hover:text-primary transition-all duration-300 transform hover:scale-105 relative group">
+          <span>服务器规则</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a href="#resources" class="hover:text-primary transition-all duration-300 transform hover:scale-105 relative group">
+          <span>资源下载</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a href="#join" class="bg-primary hover:bg-primary/90 text-white px-5 py-2 pixel-btn inline-block animate-pulse-glow">立即加入</a>
+      </nav>
+      
+      <!-- 移动端菜单按钮 -->
+      <button id="menu-toggle" class="md:hidden text-2xl text-primary transition-transform duration-300 hover:rotate-90">
+        <i class="fa fa-bars"></i>
+      </button>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-dark/95 backdrop-blur-lg transform transition-all duration-500 origin-top">
+      <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+        <a href="#features" class="py-2 hover:text-primary transition-all duration-300 transform hover:translate-x-2">服务器特色</a>
+        <a href="#gameplay" class="py-2 hover:text-primary transition-all duration-300 transform hover:translate-x-2">游戏玩法</a>
+        <a href="#gallery" class="py-2 hover:text-primary transition-all duration-300 transform hover:translate-x-2">作品展示</a>
+        <a href="#rules" class="py-2 hover:text-primary transition-all duration-300 transform hover:translate-x-2">服务器规则</a>
+        <a href="#resources" class="py-2 hover:text-primary transition-all duration-300 transform hover:translate-x-2">资源下载</a>
+        <a href="#join" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 text-center pixel-btn animate-pulse-glow">立即加入</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 英雄区域 -->
+  <section class="pt-28 pb-20 md:pt-36 md:pb-32 grass-bg relative overflow-hidden">
+    <div class="absolute inset-0 bg-dark/60"></div>
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="text-center max-w-4xl mx-auto">
+        <!-- 英雄区域添加Logo -->
+        <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEDyMlo_LR1qJY9pP5K9UK1FgpAteo6PQACJhwAAjvC6FfYiILOBGcgbTYE.png" alt="XTV服务器logo.png" alt="XTV服务器Logo" class="mx-auto mb-6 h-24 w-auto animate-bounce-in">
+        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-6 text-shadow animate-slide-down">
+          XTV<span class="text-primary">我的世界</span>服务器
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 text-gray-200 animate-slide-up">
+          专注于MTR轨道交通、生存冒险与创意建筑的多元社区
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12 animate-slide-up" style="animation-delay: 0.2s">
+          <a href="#join" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg pixel-btn animate-float">
+            加入服务器
+          </a>
+          <a href="#resources" class="bg-accent hover:bg-accent/90 text-white px-8 py-3 text-lg pixel-btn animate-float" style="animation-delay: 0.5s">
+            下载资源
+          </a>
+        </div>
+        
+        <div class="bg-dark/80 backdrop-blur-sm p-4 md:p-6 rounded-lg inline-block animate-fade-in" style="animation-delay: 0.4s">
+          <p class="text-gray-300 mb-2">服务器地址</p>
+          <p class="text-xl font-bold text-secondary">svip5.minekuai.com:20080</p>
+        </div>
+        
+        <div class="mt-12 flex flex-wrap justify-center gap-8 animate-fade-in" style="animation-delay: 0.6s">
+          <div class="text-center transition-all duration-500 hover:scale-110">
+            <div class="text-3xl font-bold text-primary mb-1">1.20.1</div>
+            <p class="text-gray-400">游戏版本</p>
+          </div>
+          <div class="text-center transition-all duration-500 hover:scale-110">
+            <div class="text-3xl font-bold text-primary mb-1">
+              <span id="player-count">0</span>+
+            </div>
+            <p class="text-gray-400">在线玩家5+</p>
+          </div>
+          <div class="text-center transition-all duration-500 hover:scale-110">
+            <div class="text-3xl font-bold text-primary mb-1">24/7</div>
+            <p class="text-gray-400">稳定运行</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 服务器特色 -->
+  <section id="features" class="py-20 bg-dark">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 animate-slide-down">服务器特色</h2>
+        <p class="text-gray-400 text-lg animate-slide-up">XTV服务器为您带来独特的我的世界体验</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- 特色1 -->
+        <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 hover:border-primary transition-all duration-500 transform hover:-translate-y-2 animate-slide-up" style="animation-delay: 0.1s">
+          <div class="w-16 h-16 bg-primary/20 rounded-lg flex items-center justify-center text-primary text-2xl mb-6 mx-auto transition-all duration-500 hover:scale-110 hover:rotate-12">
+            <i class="fa fa-train"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-center">MTR轨道交通</h3>
+          <p class="text-gray-400 text-center">完善的轨道交通系统，玩家可设计建造复杂的地铁网络，连接各个区域和景点。</p>
+        </div>
+        
+        <!-- 特色2 -->
+        <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 hover:border-primary transition-all duration-500 transform hover:-translate-y-2 animate-slide-up" style="animation-delay: 0.2s">
+          <div class="w-16 h-16 bg-primary/20 rounded-lg flex items-center justify-center text-primary text-2xl mb-6 mx-auto transition-all duration-500 hover:scale-110 hover:rotate-12">
+            <i class="fa fa-gamepad"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-center">生存冒险</h3>
+          <p class="text-gray-400 text-center">原版生存体验，结合经济系统和任务系统，让生存更有趣，更有挑战性。</p>
+        </div>
+        
+        <!-- 特色3 -->
+        <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 hover:border-primary transition-all duration-500 transform hover:-translate-y-2 animate-slide-up" style="animation-delay: 0.3s">
+          <div class="w-16 h-16 bg-primary/20 rounded-lg flex items-center justify-center text-primary text-2xl mb-6 mx-auto transition-all duration-500 hover:scale-110 hover:rotate-12">
+            <i class="fa fa-building"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-3 text-center">创意建筑</h3>
+          <p class="text-gray-400 text-center">超大建筑区域，支持玩家发挥创意，建造令人惊叹的建筑作品，参与建筑比赛。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 游戏玩法 -->
+  <section id="gameplay" class="py-20 bg-gradient-to-b from-dark to-dark/90">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 animate-slide-down">游戏玩法</h2>
+        <p class="text-gray-400 text-lg animate-slide-up">多元化的游戏模式，满足不同玩家的需求</p>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- MTR模式 -->
+        <div class="bg-dark border-2 border-gray-800 rounded-lg overflow-hidden group animate-slide-up" style="animation-delay: 0.1s">
+          <div class="h-48 overflow-hidden">
+            <img src="https://picsum.photos/id/1031/600/400" alt="MTR轨道交通" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-3 text-primary">MTR轨道交通</h3>
+            <ul class="space-y-2 text-gray-300 mb-6">
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>自定义地铁线路和站点</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>多种列车和轨道类型选择</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>地铁公司和经济系统</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>连接玩家基地和公共区域</span>
+              </li>
+            </ul>
+            <a href="#join" class="inline-block bg-primary hover:bg-primary/90 text-white px-4 py-2 pixel-btn">开始建设</a>
+          </div>
+        </div>
+        
+        <!-- 生存模式 -->
+        <div class="bg-dark border-2 border-gray-800 rounded-lg overflow-hidden group animate-slide-up" style="animation-delay: 0.2s">
+          <div class="h-48 overflow-hidden">
+            <img src="https://picsum.photos/id/1039/600/400" alt="生存冒险" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-3 text-primary">生存冒险</h3>
+            <ul class="space-y-2 text-gray-300 mb-6">
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>原版生存体验，保留核心玩法</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>经济系统和商店插件</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>任务系统和成就奖励</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>玩家交易和合作生存</span>
+              </li>
+            </ul>
+            <a href="#join" class="inline-block bg-primary hover:bg-primary/90 text-white px-4 py-2 pixel-btn">开始冒险</a>
+          </div>
+        </div>
+        
+        <!-- 建筑模式 -->
+        <div class="bg-dark border-2 border-gray-800 rounded-lg overflow-hidden group animate-slide-up" style="animation-delay: 0.3s">
+          <div class="h-48 overflow-hidden">
+            <img src="https://picsum.photos/id/164/600/400" alt="创意建筑" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1">
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold mb-3 text-primary">创意建筑</h3>
+            <ul class="space-y-2 text-gray-300 mb-6">
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>无限资源，自由创作</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>建筑团队合作项目</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>定期建筑比赛和奖励</span>
+              </li>
+              <li class="flex items-start space-x-2 transition-all duration-300 hover:translate-x-1">
+                <i class="fa fa-check text-green-500 mt-1"></i>
+                <span>优秀作品展示和参观</span>
+              </li>
+            </ul>
+            <a href="#join" class="inline-block bg-primary hover:bg-primary/90 text-white px-4 py-2 pixel-btn">开始创作</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 作品展示 -->
+  <section id="gallery" class="py-20 bg-dark">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 animate-slide-down">玩家作品展示</h2>
+        <p class="text-gray-400 text-lg animate-slide-up">欣赏XTV服务器玩家的精彩创作</p>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="group relative overflow-hidden rounded-lg animate-slide-up" style="animation-delay: 0.1s">
+          <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEDyOto_LchuIc3PswB0aIkZmlfQiHmlgACTBwAAjvC6FdELK0DUrHiBjYE.jpg" alt="玩家作品" class="w-full h-64 object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1">
+          <div class="absolute inset-0 bg-dark/70 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+            <div class="text-center p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+              <h3 class="font-bold text-lg mb-1">蜜雪冰城</h3>
+              <p class="text-sm text-gray-300">作者: 三月</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="group relative overflow-hidden rounded-lg animate-slide-up" style="animation-delay: 0.2s">
+          <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEDyOVo_LaMiM9wP13obcYq6hyRHT6LOwACQxwAAjvC6Fee91xPhReIZTYE.png" alt="玩家作品" class="w-full h-64 object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1">
+          <div class="absolute inset-0 bg-dark/70 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+            <div class="text-center p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+              <h3 class="font-bold text-lg mb-1">高铁站</h3>
+              <p class="text-sm text-gray-300">作者: 三月</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="group relative overflow-hidden rounded-lg animate-slide-up" style="animation-delay: 0.3s">
+          <img src="https://picsum.photos/id/1061/600/400" alt="玩家作品" class="w-full h-64 object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1">
+          <div class="absolute inset-0 bg-dark/70 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+            <div class="text-center p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+              <h3 class="font-bold text-lg mb-1">中世纪城堡</h3>
+              <p class="text-sm text-gray-300">作者: Medieval_Architect</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-12 animate-fade-in" style="animation-delay: 0.4s">
+        <a href="#" class="inline-block bg-accent hover:bg-accent/90 text-white px-6 py-3 pixel-btn">查看更多作品</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 服务器规则 -->
+  <section id="rules" class="py-20 bg-gradient-to-b from-dark/90 to-dark">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 animate-slide-down">服务器规则</h2>
+        <p class="text-gray-400 text-lg animate-slide-up">为了维护良好的游戏环境，请遵守以下规则</p>
+      </div>
+      
+      <div class="max-w-3xl mx-auto">
+        <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 mb-6 animate-slide-up" style="animation-delay: 0.1s">
+          <h3 class="text-xl font-bold mb-4 text-secondary">基本规则</h3>
+          <ul class="space-y-3">
+            <li class="flex items-start space-x-3 transition-all duration-300 hover:bg-gray-800/50 p-2 rounded">
+              <span class="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-secondary text-sm mt-0.5 flex-shrink-0 transition-all duration-300 hover:scale-110">1</span>
+              <span>尊重他人，禁止辱骂、歧视、人身攻击等不友善行为</span>
+            </li>
+            <li class="flex items-start space-x-3 transition-all duration-300 hover:bg-gray-800/50 p-2 rounded">
+              <span class="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-secondary text-sm mt-0.5 flex-shrink-0 transition-all duration-300 hover:scale-110">2</span>
+              <span>禁止使用任何作弊软件、外挂、脚本等破坏游戏公平性的工具</span>
+            </li>
+            <li class="flex items-start space-x-3 transition-all duration-300 hover:bg-gray-800/50 p-2 rounded">
+              <span class="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-secondary text-sm mt-0.5 flex-shrink-0 transition-all duration-300 hover:scale-110">3</span>
+              <span>禁止恶意破坏他人建筑或财产，未经允许不得擅自拿取他人物品</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="bg-accent/20 border-2 border-accent/30 rounded-lg p-6 animate-slide-up" style="animation-delay: 0.2s">
+          <h3 class="text-xl font-bold mb-4 text-accent">违规处理</h3>
+          <p class="mb-3">违反规则将根据情节轻重进行处理：</p>
+          <ul class="space-y-2 ml-6 list-disc text-gray-300">
+            <li class="transition-all duration-300 hover:translate-x-1">首次轻微违规：警告处理</li>
+            <li class="transition-all duration-300 hover:translate-x-1">多次违规或严重违规：临时封禁</li>
+            <li class="transition-all duration-300 hover:translate-x-1">恶意破坏或作弊：永久封禁</li>
+          </ul>
+          <p class="mt-4">如有异议，可联系管理员进行申诉</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 资源下载 -->
+  <section id="resources" class="py-20 bg-dark">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4 animate-slide-down">服务器资源下载</h2>
+        <p class="text-gray-400 text-lg animate-slide-up">获取所有必要的客户端资源，确保最佳游戏体验</p>
+      </div>
+      
+      <!-- 资源列表 - 只保留三个下载项 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <!-- 公交车资源包 -->
+        <div class="resource-card bg-dark border-2 border-gray-800 rounded-lg overflow-hidden animate-slide-up" data-category="texture" style="animation-delay: 0.1s">
+          <div class="p-6">
+            <div class="flex items-center space-x-4 mb-4">
+              <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center text-primary text-xl transition-all duration-500 hover:scale-110 hover:rotate-12">
+                <i class="fa fa-bus"></i>
+              </div>
+              <h3 class="text-xl font-bold">公交车资源包</h3>
+            </div>
+            <p class="text-gray-400 mb-4">包含各种公交车模型和纹理的专用资源包</p>
+            <div class="flex flex-wrap gap-2 mb-6">
+              <span class="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">1.20.1</span>
+              <span class="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">128MB</span>
+              <span class="bg-blue-900/30 text-blue-400 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">必备资源</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <a href="https://wwjr.lanzouw.com/ic1jU398k3ze" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 pixel-btn flex items-center" target="_blank" rel="noopener">
+                <i class="fa fa-download mr-2"></i> 下载 (ZIP)
+              </a>
+              <button class="text-accent hover:text-accent/80 transition-all duration-300 hover:scale-110" onclick="showInstallGuide('texture')">
+                <i class="fa fa-question-circle"></i> 安装指南
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 综合追加包 -->
+        <div class="resource-card bg-dark border-2 border-gray-800 rounded-lg overflow-hidden animate-slide-up" data-category="mods" style="animation-delay: 0.2s">
+          <div class="p-6">
+            <div class="flex items-center space-x-4 mb-4">
+              <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center text-primary text-xl transition-all duration-500 hover:scale-110 hover:rotate-12">
+                <i class="fa fa-cubes"></i>
+              </div>
+              <h3 class="text-xl font-bold">综合追加包</h3>
+            </div>
+            <p class="text-gray-400 mb-4">包含服务器所需的所有模组和资源包的完整集合</p>
+            <div class="flex flex-wrap gap-2 mb-6">
+              <span class="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">1.20.1</span>
+              <span class="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">2.1GB</span>
+              <span class="bg-green-900/30 text-green-400 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">一键安装</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <a href="https://wwjr.lanzouw.com/ic1jU398k3ze" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 pixel-btn flex items-center" target="_blank" rel="noopener">
+                <i class="fa fa-download mr-2"></i> 下载 (ZIP)
+              </a>
+              <button class="text-accent hover:text-accent/80 transition-all duration-300 hover:scale-110" onclick="showInstallGuide('mods')">
+                <i class="fa fa-question-circle"></i> 安装指南
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 服务器地图 -->
+        <div class="resource-card bg-dark border-2 border-gray-800 rounded-lg overflow-hidden animate-slide-up" data-category="map" style="animation-delay: 0.3s">
+          <div class="p-6">
+            <div class="flex items-center space-x-4 mb-4">
+              <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center text-primary text-xl transition-all duration-500 hover:scale-110 hover:rotate-12">
+                <i class="fa fa-map"></i>
+              </div>
+              <h3 class="text-xl font-bold">服务器地图</h3>
+            </div>
+            <p class="text-gray-400 mb-4">服务器当前使用的地图，包含所有公共建筑和基础设施</p>
+            <div class="flex flex-wrap gap-2 mb-6">
+              <span class="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">1.20.1</span>
+              <span class="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">850MB</span>
+              <span class="bg-purple-900/30 text-purple-400 text-xs px-2 py-1 rounded transition-all duration-300 hover:scale-105">探索地图</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <a href="https://wwjr.lanzouw.com/ic1jU398k3ze" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 pixel-btn flex items-center" target="_blank" rel="noopener">
+                <i class="fa fa-download mr-2"></i> 下载 (ZIP)
+              </a>
+              <button class="text-accent hover:text-accent/80 transition-all duration-300 hover:scale-110" onclick="showInstallGuide('map')">
+                <i class="fa fa-question-circle"></i> 安装指南
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 安装指南弹窗 -->
+      <div id="install-guide" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
+        <div class="bg-dark border-2 border-primary rounded-lg max-w-lg w-full mx-4 p-6 animate-bounce-in">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-primary">资源安装指南</h3>
+            <button id="close-guide" class="text-gray-400 hover:text-white transition-all duration-300 hover:scale-110">
+              <i class="fa fa-times text-xl"></i>
+            </button>
+          </div>
+          <div id="guide-content" class="text-gray-300">
+            <!-- 内容将通过JavaScript动态填充 -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 加入服务器 -->
+  <section id="join" class="py-20 bg-gradient-to-b from-dark to-dark/90">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto bg-dark/80 backdrop-blur-sm border-2 border-primary/30 rounded-xl p-8 md:p-12 animate-slide-up">
+        <div class="text-center mb-10">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">加入XTV服务器</h2>
+          <p class="text-gray-400 text-lg">立即加入我们的社区，开启你的我的世界冒险</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- 服务器信息 -->
+          <div class="space-y-6">
+            <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 transition-all duration-500 hover:border-primary">
+              <h3 class="text-xl font-bold mb-4 text-primary">服务器信息</h3>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center transition-all duration-300 hover:bg-gray-800/50 p-2 rounded">
+                  <span class="text-gray-400">服务器地址</span>
+                  <span class="font-bold text-secondary">svip5.minekuai.com:20080</span>
+                </div>
+                <div class="flex justify-between items-center transition-all duration-300 hover:bg-gray-800/50 p-2 rounded">
+                  <span class="text-gray-400">游戏版本</span>
+                  <span class="font-bold">1.20.1</span>
+                </div>
+                <div class="flex justify-between items-center transition-all duration-300 hover:bg-gray-800/50 p-2 rounded">
+                  <span class="text-gray-400">在线状态</span>
+                  <span class="font-bold text-green-500">在线</span>
+                </div>
+                <div class="flex justify-between items-center transition-all duration-300 hover:bg-gray-800/50 p-2 rounded">
+                  <span class="text-gray-400">玩家数量</span>
+                  <span class="font-bold"><span id="player-count-2">0</span>/100</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 transition-all duration-500 hover:border-accent">
+              <h3 class="text-xl font-bold mb-4 text-accent">快速加入指南</h3>
+              <ol class="space-y-3 ml-4">
+                <li class="flex items-start space-x-3 transition-all duration-300 hover:translate-x-1">
+                  <span class="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-accent text-sm mt-0.5 flex-shrink-0">1</span>
+                  <span>确保你的游戏版本为1.20.1</span>
+                </li>
+                <li class="flex items-start space-x-3 transition-all duration-300 hover:translate-x-1">
+                  <span class="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-accent text-sm mt-0.5 flex-shrink-0">2</span>
+                  <span>下载并安装<a href="#resources" class="text-primary hover:underline ml-1">服务器资源包</a></span>
+                </li>
+                <li class="flex items-start space-x-3 transition-all duration-300 hover:translate-x-1">
+                  <span class="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-accent text-sm mt-0.5 flex-shrink-0">3</span>
+                  <span>在多人游戏中添加服务器地址</span>
+                </li>
+                <li class="flex items-start space-x-3 transition-all duration-300 hover:translate-x-1">
+                  <span class="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center text-accent text-sm mt-0.5 flex-shrink-0">4</span>
+                  <span>加入服务器并开始游戏</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+          
+          <!-- 社区链接 -->
+          <div class="space-y-6">
+            <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 transition-all duration-500 hover:border-secondary">
+              <h3 class="text-xl font-bold mb-4 text-secondary">加入社区</h3>
+              <p class="text-gray-400 mb-4">加入我们的社区，与其他玩家交流，获取最新资讯</p>
+              <div class="space-y-4">
+                <a href="#" class="flex items-center space-x-4 p-3 bg-gray-800/50 rounded-lg transition-all duration-300 hover:bg-gray-700/50 hover:translate-x-2 group">
+                  <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-12">
+                    <i class="fa fa-qq"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold">QQ群</h4>
+                    <p class="text-sm text-gray-400">点击加入官方QQ群</p>
+                  </div>
+                </a>
+                
+                <a href="#" class="flex items-center space-x-4 p-3 bg-gray-800/50 rounded-lg transition-all duration-300 hover:bg-gray-700/50 hover:translate-x-2 group">
+                  <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-12">
+                    <i class="fa fa-weixin"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold">微信群</h4>
+                    <p class="text-sm text-gray-400">扫码加入官方微信群</p>
+                  </div>
+                </a>
+                
+                <a href="#" class="flex items-center space-x-4 p-3 bg-gray-800/50 rounded-lg transition-all duration-300 hover:bg-gray-700/50 hover:translate-x-2 group">
+                  <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white transition-all duration-300 group-hover:scale-110 group-hover:rotate-12">
+                    <i class="fa fa-youtube-play"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold">YouTube</h4>
+                    <p class="text-sm text-gray-400">观看服务器视频</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+            
+            <div class="bg-dark border-2 border-gray-800 rounded-lg p-6 transition-all duration-500 hover:border-primary">
+              <h3 class="text-xl font-bold mb-4 text-primary">服务器状态</h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">服务器延迟</span>
+                  <span class="font-bold text-green-500">良好</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">TPS</span>
+                  <span class="font-bold text-green-500">20.0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">正常运行时间</span>
+                  <span class="font-bold text-green-500">99.8%</span>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                  <div class="bg-primary h-2.5 rounded-full w-11/12"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>服务器负载</span>
+                  <span>85%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-10">
+          <a href="#" class="inline-block bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg pixel-btn animate-pulse-glow">
+            <i class="fa fa-gamepad mr-2"></i> 立即加入服务器
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="py-10 bg-dark border-t border-gray-800">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center space-x-3 mb-4 md:mb-0">
+          <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEDyMlo_LR1qJY9pP5K9UK1FgpAteo6PQACJhwAAjvC6FfYiILOBGcgbTYE.png" alt="XTV服务器Logo" class="h-10 w-auto">
+          <span class="text-xl font-bold">XTV服务器</span>
+        </div>
+        
+        <div class="text-gray-400 text-center md:text-right">
+          <p>© 2024 XTV服务器. 保留所有权利.</p>
+          <p class="text-sm mt-1">本服务器与Mojang Studios无关</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-10 hover:bg-primary/90 hover:scale-110">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <!-- JavaScript -->
+  <script>
+    // 页面加载进度条
+    window.addEventListener('load', function() {
+      const loadingBar = document.getElementById('loading-bar');
+      loadingBar.style.width = '100%';
+      setTimeout(() => {
+        loadingBar.style.opacity = '0';
+        setTimeout(() => {
+          loadingBar.remove();
+        }, 500);
+      }, 500);
+    });
+    
+    // 模拟加载进度
+    let progress = 0;
+    const loadingBar = document.getElementById('loading-bar');
+    const interval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress > 90) {
+        clearInterval(interval);
+      } else {
+        loadingBar.style.width = `${progress}%`;
+      }
+    }, 200);
+    
+    // 导航栏显示/隐藏
+    let lastScrollTop = 0;
+    const navbar = document.getElementById('navbar');
+    
+    window.addEventListener('scroll', function() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      if (scrollTop > lastScrollTop && scrollTop > 100) {
+        // 向下滚动
+        navbar.style.transform = 'translateY(-100%)';
+      } else {
+        // 向上滚动
+        navbar.style.transform = 'translateY(0)';
+      }
+      
+      lastScrollTop = scrollTop;
+      
+      // 返回顶部按钮显示/隐藏
+      const backToTop = document.getElementById('back-to-top');
+      if (scrollTop > 300) {
+        backToTop.style.opacity = '1';
+        backToTop.style.transform = 'translateY(0)';
+      } else {
+        backToTop.style.opacity = '0';
+        backToTop.style.transform = 'translateY(10px)';
+      }
+    });
+    
+    // 移动端菜单切换
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    menuToggle.addEventListener('click', function() {
+      if (mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.remove('hidden');
+        mobileMenu.classList.add('animate-slide-down');
+        setTimeout(() => {
+          mobileMenu.classList.remove('animate-slide-down');
+        }, 600);
+      } else {
+        mobileMenu.classList.add('animate-slide-up');
+        setTimeout(() => {
+          mobileMenu.classList.add('hidden');
+          mobileMenu.classList.remove('animate-slide-up');
+        }, 500);
+      }
+    });
+    
+    // 返回顶部功能
+    document.getElementById('back-to-top').addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // 平滑滚动到锚点
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // 移动端点击后关闭菜单
+          if (!mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.add('animate-slide-up');
+            setTimeout(() => {
+              mobileMenu.classList.add('hidden');
+              mobileMenu.classList.remove('animate-slide-up');
+            }, 500);
+          }
+        }
+      });
+    });
+    
+    // 模拟玩家数量
+    function updatePlayerCount() {
+      const playerCount = Math.floor(Math.random() * 10) + 15; // 15-25之间的随机数
+      document.getElementById('player-count').textContent = playerCount;
+      document.getElementById('player-count-2').textContent = playerCount;
+    }
+    
+    // 初始更新
+    updatePlayerCount();
+    // 每30秒更新一次
+    setInterval(updatePlayerCount, 30000);
+    
+    // 安装指南弹窗
+    function showInstallGuide(type) {
+      const guideModal = document.getElementById('install-guide');
+      const guideContent = document.getElementById('guide-content');
+      
+      let content = '';
+      
+      if (type === 'texture') {
+        content = `
+          <h4 class="font-bold mb-2 text-primary">公交车资源包安装指南</h4>
+          <ol class="space-y-2 ml-4 list-decimal">
+            <li>下载公交车资源包ZIP文件</li>
+            <li>打开我的世界游戏</li>
+            <li>进入"选项" -> "资源包"</li>
+            <li>点击"打开资源包文件夹"</li>
+            <li>将下载的ZIP文件复制到该文件夹</li>
+            <li>返回游戏，在资源包列表中选择并激活该资源包</li>
+            <li>点击"完成"保存设置</li>
+          </ol>
+          <p class="mt-4 text-sm text-gray-400">注意：如果资源包不显示，请确保ZIP文件没有嵌套文件夹。</p>
+        `;
+      } else if (type === 'mods') {
+        content = `
+          <h4 class="font-bold mb-2 text-primary">综合追加包安装指南</h4>
+          <ol class="space-y-2 ml-4 list-decimal">
+            <li>下载综合追加包ZIP文件</li>
+            <li>解压ZIP文件到临时文件夹</li>
+            <li>打开我的世界启动器</li>
+            <li>创建一个新的游戏配置，选择版本1.20.1</li>
+            <li>将解压后的模组文件复制到游戏配置的"mods"文件夹</li>
+            <li>将资源包文件复制到游戏配置的"resourcepacks"文件夹</li>
+            <li>启动游戏并享受完整的服务器体验</li>
+          </ol>
+          <p class="mt-4 text-sm text-gray-400">提示：建议使用Forge或Fabric作为模组加载器。</p>
+        `;
+      } else if (type === 'map') {
+        content = `
+          <h4 class="font-bold mb-2 text-primary">服务器地图安装指南</h4>
+          <ol class="space-y-2 ml-4 list-decimal">
+            <li>下载服务器地图ZIP文件</li>
+            <li>解压ZIP文件</li>
+            <li>打开我的世界游戏存档文件夹</li>
+            <li>将解压后的地图文件夹复制到存档文件夹</li>
+            <li>启动我的世界，在单人游戏中选择该地图</li>
+            <li>现在你可以在本地探索服务器地图了</li>
+          </ol>
+          <p class="mt-4 text-sm text-gray-400">注意：本地地图不会包含服务器上的玩家建筑。</p>
+        `;
+      }
+      
+      guideContent.innerHTML = content;
+      guideModal.classList.remove('hidden');
+    }
+    
+    // 关闭安装指南
+    document.getElementById('close-guide').addEventListener('click', function() {
+      document.getElementById('install-guide').classList.add('hidden');
+    });
+    
+    // 点击弹窗外部关闭
+    document.getElementById('install-guide').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.add('hidden');
+      }
+    });
+    
+    // 滚动动画
+    function animateOnScroll() {
+      const elements = document.querySelectorAll('.animate-slide-up, .animate-slide-down, .animate-fade-in');
+      
+      elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+          element.style.opacity = '1';
+          element.style.transform = 'translateY(0)';
+        }
+      });
+    }
+    
+    // 初始调用
+    animateOnScroll();
+    // 滚动时调用
+    window.addEventListener('scroll', animateOnScroll);
+  </script>
+</body>
+</html>
