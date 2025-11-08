@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XTV MTR服务器 - 专业的Minecraft铁路服务器</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #2196F3;
+            --accent: #FF9800;
+            --dark: #1a1a1a;
+            --light: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 导航栏 */
+        header {
+            background: rgba(13, 27, 42, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        /* 英雄区域 */
+        .hero {
+            padding: 150px 0 100px;
+            text-align: center;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%230d1b2a" width="1200" height="800"/><path fill="%234CAF50" opacity="0.1" d="M0,400 Q300,200 600,400 T1200,400 L1200,800 L0,800 Z"/></svg>') no-repeat center/cover;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .server-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        /* 功能区域 */
+        .features {
+            padding: 100px 0;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--primary);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: var(--primary);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 15px 35px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, var(--accent), #FF5722);
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 10px 25px rgba(255, 152, 0, 0.4);
+        }
+        
+        .btn-large {
+            padding: 18px 45px;
+            font-size: 1.2rem;
+        }
+        
+        /* 下载区域 */
+        .download-section {
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .version-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem auto;
+            max-width: 500px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        /* 社区区域 */
+        .community {
+            padding: 100px 0;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .community-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .community-card:hover {
+            transform: scale(1.05);
+        }
+        
+        /* AI 聊天面板 样式 */
+        .ai-chat-panel {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 360px;
+            max-height: 70vh;
+            background: rgba(10,12,20,0.85);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            color: #fff;
+            z-index: 1200;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(6px);
+        }
+
+        .ai-chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-weight: 600;
+        }
+
+        .ai-chat-messages {
+            padding: 12px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .ai-msg {
+            margin-bottom: 10px;
+            display: block;
+            word-break: break-word;
+        }
+
+        .ai-msg.user {
+            text-align: right;
+        }
+
+        .ai-msg .bubble {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+
+        .ai-msg.user .bubble {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #fff;
+        }
+
+        .ai-msg.assistant .bubble {
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+        }
+
+        .ai-chat-form {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            border-top: 1px solid rgba(255,255,255,0.03);
+            background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.06));
+        }
+
+        .ai-chat-form input[type="text"] {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            color: #fff;
+            outline: none;
+        }
+
+        .ai-chat-form .btn {
+            padding: 8px 14px;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .ai-toggle-collapsed .ai-chat-messages,
+        .ai-toggle-collapsed .ai-chat-form {
+            display: none;
+        }
+
+        @media (max-width: 992px) {
+            .ai-chat-panel { display: none; }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .server-stats {
+                gap: 1.5rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeInUp 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <span>🚆</span>
+                XTV MTR服务器
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#features">服务器特色</a></li>
+                <li><a href="#download">客户端下载</a></li>
+                <li><a href="#community">加入社区</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="hero" id="home">
+        <div class="container">
+            <h1 class="animate-fade-in">专业的Minecraft MTR服务器</h1>
+            <p class="animate-fade-in">体验最完善的Minecraft铁路系统！真实的地铁运营、精确的时刻表、丰富的线路网络，打造属于你的轨道交通世界。</p>
+            
+            <div style="margin: 3rem 0;">
+                <a href="#download" class="btn btn-large animate-fade-in">
+                    🎮 立即加入服务器
+                </a>
+                <a href="#community" class="btn btn-secondary btn-large animate-fade-in">
+                    👥 加入玩家社区
+                </a>
+            </div>
+            
+            <div class="server-stats">
+                <div class="stat-item">
+                    <div class="stat-number">10+</div>
+                    <div class="stat-label">在线玩家</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5+</div>
+                    <div class="stat-label">地铁线路</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">稳定运行</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能区域 -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">服务器特色功能</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon">🚇</div>
+                    <h3>真实地铁系统</h3>
+                    <p>完整的MTR模组支持，真实的地铁运营体验，包括自动售票、站台屏蔽门、精确到秒的时刻表系统</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon">🛤️</div>
+                    <h3>庞大线路网络</h3>
+                    <p>50+条精心设计的线路，覆盖整个服务器世界，包含地铁、轻轨、高铁等多种交通方式</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon">🏗️</div>
+                    <h3>自由建设</h3>
+                    <p>开放玩家自主建设权限，打造属于你自己的地铁站和线路，共同完善交通网络</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>高性能运行</h3>
+                    <p>专业级服务器硬件，确保千人同时在线流畅运行，拒绝卡顿和延迟</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon">🎯</div>
+                    <h3>定期活动</h3>
+                    <p>每周举办建设比赛、运营挑战等丰富活动，赢取稀有道具和特殊权限</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>安全稳定</h3>
+                    <p>专业的反作弊系统，7×24小时监控，为玩家提供公平安全的游戏环境</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 下载区域 -->
+    <section class="download-section" id="download">
+        <div class="container">
+            <h2 class="section-title">加入服务器</h2>
+            <p style="text-align: center; font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem;">
+                下载整合包，一键连接服务器，开始你的MTR之旅
+            </p>
+            
+            <div class="version-info">
+                <h3>服务器信息</h3>
+                <p><strong>地址：</strong> 这个进群拿</p>
+                <p><strong>版本：</strong> 1.20.1</p>
+                <p><strong>所需模组：</strong> 整合包里有</p>
+            </div>
+            
+            <a href="https://your-lanzou-link.lanzou.cloud/xtv-mtr-client.zip" 
+               download="XTV_MTR_客户端整合包.zip"
+               class="btn btn-large">
+                📥 下载专用整合包 (v2.1.4)
+            </a>
+            
+            <p style="margin-top: 1rem; opacity: 0.7;">包含所有必需模组，安装即玩（记得手动启用资源包</p>
+        </div>
+    </section>
+
+    <!-- 社区区域 -->
+    <section class="community" id="community">
+        <div class="container">
+            <h2 class="section-title">加入玩家社区</h2>
+            
+            <div class="community-grid">
+                <div class="community-card">
+                    <h3>QQ交流群</h3>
+                    <p style="margin: 1rem 0;">与10+玩家实时交流，获取最新资讯和技术支持</p>
+                    <button class="btn" onclick="joinQQGroup()">
+                        💬 加入QQ群 (1041782269)
+                    </button>
+                </div>
+                
+                <div class="community-card">
+                    <h3>B站官方</h3>
+                    <p style="margin: 1rem 0;">关注我们的B站账号，观看服务器动态</p>
+                    <div>
+                        <a href="https://space.bilibili.com/3546771038931537"
+                           target="_blank"
+                           class="btn btn-secondary">
+                            📺 服主
+                        </a>
+                        <a href="https://space.bilibili.com/3546774398568604"
+                           target="_blank"
+                           class="btn btn-secondary"
+                           style="margin-left:8px;">
+                            📺 副服主
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="community-card">
+                    <h3>玩家论坛</h3>
+                    <p style="margin: 1rem 0;">分享你的建设成果，参与服务器发展规划讨论</p>
+                    <a href="#" class="btn">
+                        💻 访问论坛
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo">XTV MTR服务器</div>
+                <div>
+                    <p>专业的Minecraft铁路服务器 | 始于2025年</p>
+                    <p style="opacity: 0.7; margin-top: 0.5rem;">© 2025 XTV MTR服务器 保留所有权利</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function joinQQGroup() {
+            const qqGroupNumber = '1041782269';
+            const webJoinUrl = `https://qm.qq.com/q/86ygT7FjV0`;
+
+            // 如果是在 QQ 内置浏览器，尝试使用 mqq 协议跳转
+            if (/QQ\/([\d.]+)/.test(navigator.userAgent) || /QQ\//.test(navigator.userAgent)) {
+                const mqqUrl = `mqqapi://card/show_pslcard?src_type=internal&version=1&uin=${qqGroupNumber}&card_type=group&source=qrcode`;
+                window.location.href = mqqUrl;
+
+                // 作为兜底：若协议跳转不生效，3 秒后打开网页版加群链接
+                setTimeout(() => {
+                    window.open(webJoinUrl, '_blank');
+                }, 3000);
+            } else {
+                // 其他浏览器直接打开网页版加群链接（新标签）
+                window.open(webJoinUrl, '_blank');
+            }
+        }
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        /* ========== Deepseek R1 集成示例（前端直连示例，生产请用后端代理） ========== */
+        const DEEPSEEK_API_KEY = 'sk-7a77c0d0e3344f0188b8f6897e845db7'; // <-- 替换为你的密钥或通过后端注入
+        const DEEPSEEK_ENDPOINT = 'https://api.deepseek.com/'; // <-- 根据实际 Deepseek R1 文档修改
+
+        const aiForm = document.getElementById('aiForm');
+        const aiInput = document.getElementById('aiInput');
+        const aiMessages = document.getElementById('aiMessages');
+        const aiChat = document.getElementById('aiChat');
+        const aiToggle = document.getElementById('aiToggle');
+
+        let conversation = []; // 简单会话上下文（可扩展为更多字段）
+
+        function appendMessage(role, text) {
+            const wrap = document.createElement('div');
+            wrap.className = 'ai-msg ' + (role === 'user' ? 'user' : 'assistant');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = text;
+            wrap.appendChild(bubble);
+            aiMessages.appendChild(wrap);
+            aiMessages.scrollTop = aiMessages.scrollHeight;
+        }
+
+        async function sendToDeepseek(message) {
+            // 请求体示例，请根据 Deepseek 官方 API 调整字段
+            const body = {
+                model: 'r1',
+                input: message,
+                // 可添加更多参数如 temperature, max_tokens 等
+            };
+
+            const resp = await fetch(DEEPSEEK_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+                const text = await resp.text();
+                throw new Error(`API 错误: ${resp.status} ${text}`);
+            }
+
+            const data = await resp.json();
+            // 兼容不同返回结构
+            const reply = data.output || (data.choices && (data.choices[0]?.text || data.choices[0]?.message?.content)) || JSON.stringify(data);
+            return reply;
+        }
+
+        aiForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = aiInput.value.trim();
+            if (!text) return;
+            aiInput.value = '';
+            appendMessage('user', text);
+            conversation.push({role: 'user', content: text});
+
+            // 显示 loading 占位
+            appendMessage('assistant', '正在生成回复...');
+
+            try {
+                const reply = await sendToDeepseek(text);
+                // 替换最后的 loading 文本
+                const last = aiMessages.querySelector('.ai-msg.assistant:last-child .bubble');
+                if (last) last.textContent = reply;
+                conversation.push({role: 'assistant', content: reply});
+            } catch (err) {
+                const last = aiMessages.querySelector('.ai-msg.assistant:last-child .bubble');
+                if (last) last.textContent = '请求失败：' + err.message;
+            }
+        });
+
+        // 回车发送（在 input 中）
+        aiInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                aiForm.dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}));
+            }
+        });
+
+        // 收起/展开面板
+        aiToggle.addEventListener('click', () => {
+            aiChat.classList.toggle('ai-toggle-collapsed');
+            aiToggle.textContent = aiChat.classList.contains('ai-toggle-collapsed') ? '+' : '—';
+        });
+    </script>
+</body>
+</html>
